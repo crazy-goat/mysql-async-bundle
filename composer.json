@@ -1,0 +1,11 @@
+{
+    "name": "crazy-goat/mysql-async-bundle",
+    "description": "A",
+    "keywords": ["workerman", "symfony", "runtime", "php-runtime"],
+    "homepage": "https://github.com/crazy-goat/workerman-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "require": {
+        "amphp/mysql": "^3.0"
+    }
+}
