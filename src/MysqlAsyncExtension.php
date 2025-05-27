@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CrazyGoat\MysqlAsyncBundle;
 
 use Amp\Sql\Common\SqlCommonConnectionPool;
@@ -15,13 +17,21 @@ class MysqlAsyncExtension extends Extension
     {
         $config = $configs[0] ?? [];
 
+        if (!is_array($config['pool'])) {
+            return;
+        }
+
         foreach ($config['pool'] as $poolName => $poolOpts) {
             $serviceId = sprintf('mysql_async.pool.%s', $poolName);
+            if (!is_array($poolOpts)) {
+                throw new \RuntimeException('Pool options must be an array');
+            }
+            $url = is_string($poolOpts['url'] ?? null) ? $poolOpts['url'] : throw new \RuntimeException('pool url not set');
 
             $container
                 ->register($serviceId, PoolFactory::class)
-                ->setFactory([PoolFactory::class, 'create'])
-                ->setArgument(0, $poolOpts['url'])
+                ->setFactory(sprintf('%s::%s', PoolFactory::class, 'create'))
+                ->setArgument(0, $url)
                 ->setArgument(1, SqlCommonConnectionPool::DEFAULT_MAX_CONNECTIONS)
                 ->setArgument(2, SqlCommonConnectionPool::DEFAULT_IDLE_TIMEOUT)
                 ->setPublic(false);

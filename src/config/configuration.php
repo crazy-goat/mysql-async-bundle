@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @php-cs-fixer-ignore */
 
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;

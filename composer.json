@@ -18,5 +18,25 @@
             "name": "Hałas Piotr",
             "email": "halaspiotr@gmail.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "rector/rector": "^2.0",
+        "php-cs-fixer/shim": "^3.75",
+        "phpunit/phpunit": "^12.1",
+        "symfony/framework-bundle": "^7.2"
+    },
+    "scripts": {
+        "test": [
+            "vendor/bin/phpunit"
+        ],
+        "lint-fix": [
+            "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
+            "vendor/bin/rector process"
+        ],
+        "lint": [
+            "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v --dry-run",
+            "vendor/bin/phpstan",
+            "vendor/bin/rector process --dry-run"
+        ]
+    }
 }

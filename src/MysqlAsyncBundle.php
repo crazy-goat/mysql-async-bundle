@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CrazyGoat\MysqlAsyncBundle;
 
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
@@ -13,6 +15,10 @@ class MysqlAsyncBundle extends AbstractBundle
     public function configure(DefinitionConfigurator $definition): void
     {
         $configurator = require __DIR__ . '/config/configuration.php';
+        if (!is_callable($configurator)) {
+            throw new \RuntimeException('The configuration parameter is not callable.');
+        }
+
         $configurator($definition);
     }
 
