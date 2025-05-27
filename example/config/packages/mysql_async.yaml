@@ -1,0 +1,4 @@
+mysql_async:
+  pool:
+    default:
+      url: "mysql://root:root@localhost:3306/test"

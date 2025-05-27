@@ -1,11 +1,22 @@
 {
     "name": "crazy-goat/mysql-async-bundle",
-    "description": "A",
-    "keywords": ["workerman", "symfony", "runtime", "php-runtime"],
-    "homepage": "https://github.com/crazy-goat/workerman-bundle",
+    "description": "Amphp mysql async bundle for symfony",
+    "keywords": ["mysql", "symfony", "async", "bundle"],
+    "homepage": "https://github.com/crazy-goat/mysql-async-bundle",
     "type": "symfony-bundle",
     "license": "MIT",
     "require": {
         "amphp/mysql": "^3.0"
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "CrazyGoat\\MysqlAsyncBundle\\" : "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hałas Piotr",
+            "email": "halaspiotr@gmail.com"
+        }
+    ]
 }

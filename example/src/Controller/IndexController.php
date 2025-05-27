@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\MysqlAsyncPoll;
+use CrazyGoat\MysqlAsyncBundle\Connection\Pool;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class IndexController extends AbstractController
 {
-    public function __construct(private readonly MysqlAsyncPoll $asyncConnection, private readonly Connection $syncConnection)
+    public function __construct(private readonly Pool $asyncConnection, private readonly Connection $syncConnection)
     {
     }
 

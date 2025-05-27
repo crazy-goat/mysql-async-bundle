@@ -14,12 +14,19 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.2.*",
         "symfony/runtime": "7.2.*",
-        "symfony/yaml": "7.2.*"
+        "symfony/yaml": "7.2.*",
+        "crazy-goat/mysql-async-bundle": "@dev"
     },
     "require-dev": {
         "symfony/stopwatch": "7.2.*",
         "symfony/web-profiler-bundle": "7.2.*"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,

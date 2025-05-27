@@ -1,4 +1,7 @@
 {
+    "crazy-goat/mysql-async-bundle": {
+        "version": "dev-main"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.14",
         "recipe": {
