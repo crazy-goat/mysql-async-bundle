@@ -49,7 +49,9 @@ the sample application and publishes no host ports. If you add published ports, 
 ## CI
 
 `.github/workflows/tests.yaml` runs `changes` and `docs` always. `lint` and `tests`
-(PHP 8.3 and 8.4 against Symfony 6.4 to 7.2) run for code changes. `ci-ok` aggregates them and is
+(PHP 8.3 and 8.4 against Symfony 6.4 to 7.2) run for code changes. The `example` job
+installs `example/` (`composer install`) and boots its kernel (`php bin/console about`), so
+Dependabot PRs for `/example` are checked too. `ci-ok` aggregates them and is
 the only required check. The CI `lint` job only runs `bin/lint.sh`.
 Tagging `vX.Y.Z` runs `.github/workflows/release.yaml`.
 

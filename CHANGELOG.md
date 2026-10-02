@@ -5,6 +5,9 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- [#18] CI job `example app`: installs `example/` and boots its kernel with `php bin/console about`. It runs for code changes (including Dependabot PRs for `/example`) and is part of `ci-ok`.
+
 ### Security
 - [#6] The sample application in `example/` moves from Symfony 7.2 (end of life) to Symfony 7.4 LTS, and
   `example/composer.lock` is updated (twig/twig 3.30.0, Symfony 7.4.20). This closes the 23 Dependabot
