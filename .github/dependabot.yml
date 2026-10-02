@@ -8,6 +8,15 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(deps)"
+  # The sample application has its own committed composer.lock (#6).
+  - package-ecosystem: composer
+    directory: "/example"
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

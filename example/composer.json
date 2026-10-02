@@ -8,18 +8,18 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "amphp/mysql": "^3.0",
-        "doctrine/doctrine-bundle": "*",
-        "symfony/console": "7.2.*",
-        "symfony/dotenv": "7.2.*",
+        "doctrine/doctrine-bundle": "^2.19.1",
+        "symfony/console": "7.4.*",
+        "symfony/dotenv": "7.4.*",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.2.*",
-        "symfony/runtime": "7.2.*",
-        "symfony/yaml": "7.2.*",
+        "symfony/framework-bundle": "7.4.*",
+        "symfony/runtime": "7.4.*",
+        "symfony/yaml": "7.4.*",
         "crazy-goat/mysql-async-bundle": "@dev"
     },
     "require-dev": {
-        "symfony/stopwatch": "7.2.*",
-        "symfony/web-profiler-bundle": "7.2.*"
+        "symfony/stopwatch": "7.4.*",
+        "symfony/web-profiler-bundle": "7.4.*"
     },
     "repositories": [
         {
@@ -74,7 +74,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "7.2.*"
+            "require": "7.4.*"
         }
     }
 }
