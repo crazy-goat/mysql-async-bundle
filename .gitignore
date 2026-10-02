@@ -6,3 +6,8 @@ composer.phar
 # composer.lock
 /.idea/
 /composer.lock
+
+/var/
+/findings.md
+/review.md
+/.env.worktree
