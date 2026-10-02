@@ -1,18 +1,45 @@
 name: Tests
 
 on:
+  push:
+    branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# The required status check is `ci-ok`. Fork pull requests need a maintainer's approval to run
+# workflows (repository/organisation setting), so no actor check is needed here.
 jobs:
+  changes:
+    name: Changes
+    uses: crazy-goat/.github/.github/workflows/changes.yml@main
+    with:
+      # Everything else (src/, tests/, bin/, composer.json, phpunit.xml, workflows ...) is code.
+      docs-regex: '^(AGENTS\.md|CHANGELOG\.md|LICENSE.*|\.gitignore|\.gitattributes|docs/.*|\.github/ISSUE_TEMPLATE/.*|\.github/pull_request_template\.md)$'
+
+  docs:
+    name: Docs
+    uses: crazy-goat/.github/.github/workflows/docs-check.yml@main
+
   lint:
-    name: Lint
+    name: lint
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
 
       - name: Validate composer.json
         run: composer validate --strict
@@ -23,61 +50,61 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Run code style checks
-        run: composer lint
+      - name: Run lint
+        run: bin/lint.sh
 
   tests:
-    name: Tests
+    name: tests (PHP ${{ matrix.php-version }}, Symfony ${{ matrix.symfony-version }})
+    needs: [changes, lint]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    needs: lint
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - php-version: '8.1'
-            symfony-version: '6.4.*'
-
-          - php-version: '8.2'
-            symfony-version: '6.4.*'
-          - php-version: '8.2'
-            symfony-version: '7.0.*'
-
-          - php-version: '8.3'
-            symfony-version: '6.4.*'
-          - php-version: '8.3'
-            symfony-version: '7.0.*'
-          - php-version: '8.3'
-            symfony-version: '7.1.*'
-          - php-version: '8.3'
-            symfony-version: '7.2.*'
-
-          - php-version: '8.4'
-            symfony-version: '6.4.*'
-          - php-version: '8.4'
-            symfony-version: '7.0.*'
-          - php-version: '8.4'
-            symfony-version: '7.1.*'
-          - php-version: '8.4'
-            symfony-version: '7.2.*'
+        # PHPUnit 12 (require-dev) needs PHP 8.3 or newer.
+        php-version: ['8.3', '8.4']
+        symfony-version: ['6.4.*', '7.0.*', '7.1.*', '7.2.*']
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-versions }}
-
-      - name: Create var directory
-        run: mkdir -p var
+          php-version: ${{ matrix.php-version }}
+          coverage: none
 
       - name: Update Symfony constraints in composer.json
-        run: |
-          export SYMFONY_VERSION=${{ matrix.symfony-version }}
-          sed -i -E "s/(\"symfony\/[a-z-]+\":\s*\")[^\"]+/\1$SYMFONY_VERSION/g" composer.json
+        env:
+          SYMFONY_VERSION: ${{ matrix.symfony-version }}
+        run: sed -i -E "s/(\"symfony\/[a-z-]+\":\s*\")[^\"]+/\1$SYMFONY_VERSION/g" composer.json
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer update --no-interaction --prefer-dist
 
       - name: Run tests
         run: composer test
+
+  ci-ok:
+    name: ci-ok
+    needs: [changes, docs, lint, tests]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        env:
+          CODE: ${{ needs.changes.outputs.code }}
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Code changes: $CODE"
+          echo "Results: $RESULTS"
+          for r in $RESULTS; do
+            case "$r" in failure|cancelled) exit 1 ;; esac
+          done
+          # Documentation-only changes skip the heavy jobs; code changes need all of them.
+          if [ "$CODE" = "true" ]; then
+            for r in $RESULTS; do
+              [ "$r" = "success" ] || exit 1
+            done
+          fi
