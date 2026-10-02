@@ -19,6 +19,9 @@ All notable changes to this project are documented here. The format follows
 - CI: documentation-only pull requests run only the fast docs checks; the `ci-ok` job
   aggregates the results. CI also runs on pushes to `main`. The lint job runs only
   `bin/lint.sh`, and the test matrix is limited to PHP 8.3 and 8.4 because PHPUnit 12 needs PHP 8.3.
+- `composer.json` declares `"php": ">=8.1"` (the floor of `amphp/mysql` 3), and PHPStan checks
+  against PHP 8.1.
+- `src/config/configuration.php`: removed a redundant `assert()` flagged by Rector; no behaviour change.
 
 ### Fixed
 - `Pool` threw `http\Exception\InvalidArgumentException` (from the PECL http extension) for

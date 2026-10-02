@@ -50,6 +50,15 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Install shellcheck
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz \
+            | tar -xJ --strip-components=1 -C "$HOME/.local/bin" shellcheck-v0.11.0/shellcheck
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          "$HOME/.local/bin/shellcheck" --version
+
       - name: Run lint
         run: bin/lint.sh
 
