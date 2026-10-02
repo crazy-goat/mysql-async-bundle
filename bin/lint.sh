@@ -23,8 +23,7 @@ fi
 step "php-cs-fixer" vendor/bin/php-cs-fixer fix --dry-run --diff
 step "rector" vendor/bin/rector process --dry-run
 step "phpstan" vendor/bin/phpstan analyse --no-progress
-# bin/pick-issue.sh is a byte-identical copy of the shared standard script and is not linted here.
-step "shellcheck" bash -c 'git ls-files -z --cached --others --exclude-standard "*.sh" | grep -zv "^bin/pick-issue\.sh$" | xargs -0 -r shellcheck'
+step "shellcheck" bash -c 'git ls-files -z --cached --others --exclude-standard "*.sh" | xargs -0 -r shellcheck'
 if [ -n "$(git ls-files --cached --others --exclude-standard | grep -E '(^|/)Dockerfile' || true)" ]; then
     step "hadolint" bash -c 'git ls-files -z --cached --others --exclude-standard | grep -zE "(^|/)Dockerfile" | xargs -0 -r hadolint'
 fi
