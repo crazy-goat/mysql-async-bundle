@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The format follows
 ### Security
 - [#6] The sample application in `example/` moves from Symfony 7.2 (end of life) to Symfony 7.4 LTS, and
   `example/composer.lock` is updated (twig/twig 3.30.0, Symfony 7.4.20). This closes the 23 Dependabot
-  alerts for that lock file. `doctrine/doctrine-bundle` is pinned to `^2.14`, because 3.x needs PHP 8.4
+  alerts for that lock file. `doctrine/doctrine-bundle` is pinned to `^2.19.1`, because 3.x needs PHP 8.4
   and drops the `use_savepoints` option the example uses.
 - [#6] `.github/dependabot.yml` also watches `/example`, so the example lock file gets update PRs.
 

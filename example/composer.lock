@@ -921,7 +921,7 @@
         },
         {
             "name": "crazy-goat/mysql-async-bundle",
-            "version": "dev-fix/issue-6-security-fix-23-dependabot-alerts-in-exa",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "..",
