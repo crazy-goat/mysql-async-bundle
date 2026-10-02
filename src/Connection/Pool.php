@@ -10,7 +10,6 @@ use Amp\Mysql\MysqlConfig;
 use Amp\Mysql\MysqlConnectionPool;
 use Amp\Mysql\MysqlResult;
 use Amp\Sql\Common\SqlCommonConnectionPool;
-use http\Exception\InvalidArgumentException;
 
 class Pool
 {
@@ -40,11 +39,11 @@ class Pool
         }
 
         if ($this->maxConnections <= 0) {
-            throw new InvalidArgumentException('Maximum number of connections must be greater than 0');
+            throw new \InvalidArgumentException('Maximum number of connections must be greater than 0');
         }
 
         if ($this->idleTimeout <= 0) {
-            throw new InvalidArgumentException('Idle timeout must be greater than 0');
+            throw new \InvalidArgumentException('Idle timeout must be greater than 0');
         }
 
         $this->pool = new MysqlConnectionPool($this->config, $this->maxConnections, $this->idleTimeout);
