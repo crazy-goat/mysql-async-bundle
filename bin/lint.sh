@@ -20,6 +20,8 @@ if [ "$FIX" = 1 ]; then
     vendor/bin/php-cs-fixer fix
 fi
 
+step "composer validate" composer validate --strict
+step "composer audit" composer audit
 step "php-cs-fixer" vendor/bin/php-cs-fixer fix --dry-run --diff
 step "rector" vendor/bin/rector process --dry-run
 step "phpstan" vendor/bin/phpstan analyse --no-progress

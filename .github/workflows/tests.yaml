@@ -41,12 +41,6 @@ jobs:
           php-version: "8.4"
           coverage: none
 
-      - name: Validate composer.json
-        run: composer validate --strict
-
-      - name: Composer Audit
-        run: composer audit
-
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 

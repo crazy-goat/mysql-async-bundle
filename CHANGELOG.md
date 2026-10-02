@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
-- [#2] `bin/lint.sh` (php-cs-fixer, Rector, PHPStan, shellcheck; `--fix` applies fixes) and
+- [#2] `bin/lint.sh` (composer validate and audit, php-cs-fixer, Rector, PHPStan, shellcheck; `--fix` applies fixes) and
   `phpstan/phpstan` in `require-dev`. `composer lint` and `composer lint-fix` call the script.
 - [#3] PHPUnit tests for `PoolFactory` and the `Pool` argument checks (`tests/`).
 - [#3] Development process documentation: `docs/workflow.md`, `docs/release-workflow.md`,
