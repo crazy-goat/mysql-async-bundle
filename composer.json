@@ -6,6 +6,7 @@
     "type": "symfony-bundle",
     "license": "MIT",
     "require": {
+        "php": ">=8.1",
         "amphp/mysql": "^3.0"
     },
     "autoload": {
@@ -20,23 +21,17 @@
         }
     ],
     "require-dev": {
-        "rector/rector": "^2.0",
         "php-cs-fixer/shim": "^3.75",
+        "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^12.1",
+        "rector/rector": "^2.0",
         "symfony/framework-bundle": "^7.2"
     },
     "scripts": {
         "test": [
             "vendor/bin/phpunit"
         ],
-        "lint-fix": [
-            "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v",
-            "vendor/bin/rector process"
-        ],
-        "lint": [
-            "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix -v --dry-run",
-            "vendor/bin/phpstan",
-            "vendor/bin/rector process --dry-run"
-        ]
+        "lint": "bin/lint.sh",
+        "lint-fix": "bin/lint.sh --fix"
     }
 }
