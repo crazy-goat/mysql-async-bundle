@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-02
+
+First release: a Symfony bundle that provides an `amphp/mysql` 3 connection pool (`Pool`, `PoolFactory`) configured through the bundle configuration.
+
 ### Added
 - [#2] `bin/lint.sh` (composer validate and audit, php-cs-fixer, Rector, PHPStan, shellcheck; `--fix` applies fixes) and
   `phpstan/phpstan` in `require-dev`. `composer lint` and `composer lint-fix` call the script.
