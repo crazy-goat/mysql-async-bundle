@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 /** @php-cs-fixer-ignore */
 
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 
 return static function (DefinitionConfigurator $definition): void {
     $root = $definition->rootNode();
-    \assert($root instanceof ArrayNodeDefinition);
 
     $root
         ->addDefaultsIfNotSet()
