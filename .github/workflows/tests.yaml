@@ -89,9 +89,35 @@ jobs:
       - name: Run tests
         run: composer test
 
+  example:
+    name: example app
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: example
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: none
+
+      # The example requires the bundle from the parent directory (a path repository).
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # Boots the kernel; fails on a broken container or configuration.
+      - name: Boot the kernel
+        run: php bin/console about
+
   ci-ok:
     name: ci-ok
-    needs: [changes, docs, lint, tests]
+    needs: [changes, docs, lint, tests, example]
     if: always()
     runs-on: ubuntu-latest
     steps:
