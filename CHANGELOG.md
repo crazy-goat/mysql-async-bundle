@@ -32,6 +32,9 @@ All notable changes to this project are documented here. The format follows
   matrix starts there) and PHPStan follows with `phpVersion: 80300`.
 
 ### Changed
+- [#10] `bin/lint.sh` no longer exports the deprecated `PHP_CS_FIXER_IGNORE_ENV`. The flag is now
+  set the documented way, with `->setUnsupportedPhpVersionAllowed(true)` in
+  `.php-cs-fixer.dist.php`.
 - [#9] The CI test matrix covers the maintained Symfony lines (6.4 LTS, 7.4 LTS and 8.1)
   instead of the end-of-life 7.0, 7.1 and 7.2. Symfony 8.1 needs PHP 8.4.1 or newer, so PHP 8.3 is
   excluded from that one cell.
