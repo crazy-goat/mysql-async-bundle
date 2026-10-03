@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- [#8] `tests/Integration/PoolIntegrationTest.php` runs `executeQuery()` and `fetchScalar()`
+  against a real MySQL, covering a scalar result, a string result, an empty result and a query
+  error. The suite skips itself when `MYSQL_TEST_URL` is not set, so `composer test` still needs
+  no database.
+- [#8] CI job `integration` starts a MySQL 8.4 service, sets `MYSQL_TEST_URL` and runs
+  `composer test-integration`. It is part of `ci-ok`.
+- [#8] `composer test-integration` runs only the `integration` suite; `phpunit.xml` now has the
+  suites `unit` and `integration`.
 - [#5] A README with installation, configuration and usage, and the steps that start the example
   application and open a page that runs queries through the bundle.
 - [#18] CI job `example app`: installs `example/` and boots its kernel with `php bin/console about`. It runs for code changes (including Dependabot PRs for `/example`) and is part of `ci-ok`.
@@ -18,6 +26,10 @@ All notable changes to this project are documented here. The format follows
   pool services, the `Pool` alias and invalid configuration. It needs no database.
 
 ### Fixed
+- [#8] `PoolFactoryTest::testCreatesPoolFromUrl()` only asserted that a `Pool` came back, so it
+  passed with the host, port, user, password, database, charset or any query option parsed
+  wrongly. A data provider now checks every parsed `MysqlConfig` value, the defaults when options
+  are omitted, and that the database is the first path segment.
 - [#22] `AGENTS.md` claimed that `bin/pick-issue.sh` is skipped by `shellcheck` and that it is a
   byte-identical copy of the shared script. `bin/lint.sh` checks every tracked shell script, and
   the copy in this repository is not identical to `.github/standard/pick-issue.sh`. The sentence

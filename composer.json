@@ -39,6 +39,9 @@
         "test": [
             "vendor/bin/phpunit"
         ],
+        "test-integration": [
+            "vendor/bin/phpunit --testsuite integration"
+        ],
         "lint": "bin/lint.sh",
         "lint-fix": "bin/lint.sh --fix"
     }
