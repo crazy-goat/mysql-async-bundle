@@ -15,6 +15,7 @@ Everything is written in English (code, comments, docs, commits, issues).
 | `src/Connection/` | `Pool`, `PoolFactory`, `Result` |
 | `tests/` | PHPUnit tests, they need no database |
 | `tests/TestKernel.php` | Minimal kernel the functional tests boot (`framework.test: true`) |
+| `tests/Integration/` | Tests against a real MySQL, skipped unless `MYSQL_TEST_URL` is set |
 | `example/` | Sample Symfony application (own `composer.json`, `compose.yaml`) |
 | `bin/` | Lint script, worktree scripts and `pick-issue.sh` |
 
@@ -27,8 +28,21 @@ composer install
 
 composer lint            # runs bin/lint.sh (check only)
 composer lint-fix        # runs bin/lint.sh --fix, then checks again
-composer test            # PHPUnit
+composer test            # PHPUnit, integration tests skipped without MYSQL_TEST_URL
+composer test-integration # only tests/Integration, needs MYSQL_TEST_URL
 ```
+
+`tests/Integration/PoolIntegrationTest.php` needs a MySQL server and skips itself when
+`MYSQL_TEST_URL` is unset or empty. To run it locally, start any MySQL and point the variable at
+it, for example with the compose file in `example/`:
+
+```bash
+MYSQL_TEST_URL='mysql://root:root@127.0.0.1:3306/test' composer test-integration
+```
+
+amphp needs a running event loop for the socket. PHPUnit does not provide one, so the test drives
+it itself: `async()` starts the fiber and `Revolt\EventLoop::run()` takes **no callback**, it only
+runs the loop until the fiber is done. `EventLoop::run($closure)` silently ignores the closure.
 
 `bin/lint.sh` runs php-cs-fixer (dry run), Rector (dry run), PHPStan (level max) and
 `shellcheck` (plus `hadolint` when the repository has Dockerfiles). It runs every step and fails
@@ -56,7 +70,8 @@ code changes. The matrix rewrites every `symfony/*` constraint in `composer.json
 so `require`, `require-dev` and the matrix must stay in sync. The `example` job
 installs `example/` (`composer install`) and boots its kernel (`php bin/console about`), so
 Dependabot PRs for `/example` are checked too. `ci-ok` aggregates them and is
-the only required check. The CI `lint` job only runs `bin/lint.sh`.
+the only required check. The CI `lint` job only runs `bin/lint.sh`. The `integration` job
+starts a MySQL 8.4 service, sets `MYSQL_TEST_URL` and runs `composer test-integration`.
 Tagging `vX.Y.Z` runs `.github/workflows/release.yaml`.
 
 ## Notes
