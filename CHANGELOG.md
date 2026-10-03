@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- [#30] `useCompression` and `useLocalInfile` were read with `boolval()`, so `=false` (or any
+  non-empty string) enabled the flag. They now accept `1`/`true`/`on`/`yes` to enable,
+  `0`/`false`/`off`/`no`/empty to disable, and reject anything else.
+
 ## [0.2.0] - 2026-10-03
 
 ### Added

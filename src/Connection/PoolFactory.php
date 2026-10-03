@@ -50,9 +50,9 @@ class PoolFactory
             charset: $charset,
             collate: $collate,
             sqlMode: $sqlMode,
-            useCompression: boolval($options['useCompression'] ?? false),
+            useCompression: self::parseBoolOption('useCompression', $options['useCompression'] ?? null),
             key: $key,
-            useLocalInfile: boolval($options['useLocalInfile'] ?? false),
+            useLocalInfile: self::parseBoolOption('useLocalInfile', $options['useLocalInfile'] ?? null),
         );
 
         return new Pool(
@@ -60,5 +60,29 @@ class PoolFactory
             $maxConnections,
             $idleTimeout,
         );
+    }
+
+    /**
+     * Reads a boolean flag from the query options. Unlike `boolval()`, the string "false" is
+     * false. True: `1`, `true`, `on`, `yes`; false: `0`, `false`, `off`, `no`, empty string.
+     * Anything else is rejected, like the other options. Note amphp's own connection string
+     * parser enables the flag only for the literal value `on`; this bundle also accepts the
+     * common `1`/`true` spellings, which amphp would treat as off.
+     */
+    private static function parseBoolOption(string $name, mixed $value): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+
+        if (!is_string($value)) {
+            throw new \RuntimeException("Invalid $name value");
+        }
+
+        return match (strtolower($value)) {
+            '1', 'true', 'on', 'yes' => true,
+            '0', 'false', 'off', 'no', '' => false,
+            default => throw new \RuntimeException("Invalid $name value"),
+        };
     }
 }

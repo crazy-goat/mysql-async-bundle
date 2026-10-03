@@ -76,6 +76,42 @@ final class PoolFactoryTest extends TestCase
             'mysql://db.example/app?useCompression=0&useLocalInfile=0',
             self::expected(),
         ];
+
+        yield 'the flags spelled off' => [
+            'mysql://db.example/app?useCompression=false&useLocalInfile=off',
+            self::expected(),
+        ];
+
+        yield 'the flags spelled on' => [
+            'mysql://db.example/app?useCompression=on&useLocalInfile=true',
+            self::expected(['useCompression' => true, 'useLocalInfile' => true]),
+        ];
+    }
+
+    /**
+     * @param non-empty-string $query
+     */
+    #[DataProvider('invalidFlagProvider')]
+    public function testRejectsInvalidFlag(string $query): void
+    {
+        $name = str_starts_with($query, 'useCompression') ? 'useCompression' : 'useLocalInfile';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage("Invalid $name value");
+
+        PoolFactory::create('mysql://user:secret@db.example/app?' . $query);
+    }
+
+    /**
+     * @return iterable<string, array{non-empty-string}>
+     */
+    public static function invalidFlagProvider(): iterable
+    {
+        // parse_str turns `name[]=x` into an array, so the option is not a string.
+        yield 'useCompression as array' => ['useCompression[]=1'];
+        yield 'useLocalInfile as array' => ['useLocalInfile[]=1'];
+        yield 'useCompression unknown value' => ['useCompression=2'];
+        yield 'useLocalInfile unknown value' => ['useLocalInfile=maybe'];
     }
 
     /**
