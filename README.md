@@ -42,7 +42,12 @@ container is compiled, so a typo fails at boot rather than at the first query.
 For the two boolean flags the accepted values are: `1`, `true`, `on` and `yes` enable the flag;
 `0`, `false`, `off`, `no` and the empty string disable it; anything else is rejected. Unlike
 `amphp/mysql`'s own connection string parser, which enables the flag only for the literal `on`,
-this bundle also accepts `1`/`true` to enable it.
+this bundle also accepts `1`/`true` to enable it. The value is matched case-insensitively, and
+`trim()` first strips `" \t\n\r\0\x0B"` from both ends, so `useCompression=+1`, `=1%20` and `=1%0D`
+keep the meaning they have without the padding. A value of nothing but stripped characters is an
+empty value, so it disables the flag. A form feed (`%0C`) and a no-break space (`%C2%A0`) are not
+stripped, so they are rejected like any other unknown value: every unrecognised spelling,
+including an array such as `useCompression[]=1`, throws a `RuntimeException` naming the option.
 
 The pool is registered under `CrazyGoat\MysqlAsyncBundle\Connection\Pool` and can be autowired:
 
