@@ -22,10 +22,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    Amp\Mysql\MysqlConfig:
-        arguments:
-            $host: "172.17.0.2"
-            $user: root
-            $password: root
-            $database: test
