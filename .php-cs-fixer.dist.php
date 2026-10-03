@@ -75,4 +75,8 @@ return (new PhpCsFixer\Config())
     ->setFinder($finder)
     ->setRules($rules)
     ->setRiskyAllowed(true)
+    // CI runs PHP 8.4 and contributors may run a newer one, while composer.json declares the
+    // lowest supported version. This is the replacement for the deprecated
+    // PHP_CS_FIXER_IGNORE_ENV environment variable, which bin/lint.sh used to export.
+    ->setUnsupportedPhpVersionAllowed(true)
     ;

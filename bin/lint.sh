@@ -13,8 +13,6 @@ step() {
     "$@" || failed+=("$name")
 }
 
-export PHP_CS_FIXER_IGNORE_ENV=1
-
 if [ "$FIX" = 1 ]; then
     vendor/bin/rector process
     vendor/bin/php-cs-fixer fix
