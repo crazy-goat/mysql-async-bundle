@@ -130,6 +130,7 @@ final class PoolFactoryTest extends TestCase
         yield 'a trailing tab' => [$base . '?useLocalInfile=1%09', false, true];
         yield 'a trailing carriage return' => [$base . '?useCompression=1%0D', true, false];
         yield 'a carriage return on its own, an empty value' => [$base . '?useCompression=%0D', false, false];
+        yield 'a space on its own, an empty value' => [$base . '?useCompression=+%20', false, false];
         yield 'whitespace around a value' => [$base . '?useCompression=+yes%20&useLocalInfile=%09no', true, false];
     }
 
@@ -155,12 +156,20 @@ final class PoolFactoryTest extends TestCase
         yield 'useLocalInfile as an array' => ['useLocalInfile[]=1', 'Invalid useLocalInfile value'];
         yield 'y' => ['useCompression=y', 'Invalid useCompression value'];
         yield 't' => ['useLocalInfile=t', 'Invalid useLocalInfile value'];
+        yield 'n' => ['useCompression=n', 'Invalid useCompression value'];
+        yield 'f' => ['useLocalInfile=f', 'Invalid useLocalInfile value'];
         yield 'enabled' => ['useCompression=enabled', 'Invalid useCompression value'];
         yield '2' => ['useCompression=2', 'Invalid useCompression value'];
         yield '-1' => ['useLocalInfile=-1', 'Invalid useLocalInfile value'];
         yield '1.0' => ['useCompression=1.0', 'Invalid useCompression value'];
         yield 'surrounded by spaces but not a boolean' => ['useCompression=%20maybe%20', 'Invalid useCompression value'];
         yield 'maybe' => ['useLocalInfile=maybe', 'Invalid useLocalInfile value'];
+
+        // Whitespace, but not in the `" \t\n\r\0\x0B"` that `trim()` strips, so it is still
+        // rejected. `booleanFlagProvider` pins the other direction, where a value of nothing
+        // but stripped characters is an empty value.
+        yield 'a form feed' => ['useCompression=1%0C', 'Invalid useCompression value'];
+        yield 'a no-break space' => ['useLocalInfile=%C2%A01', 'Invalid useLocalInfile value'];
     }
 
     /**

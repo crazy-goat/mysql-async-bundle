@@ -8,19 +8,22 @@ All notable changes to this project are documented here. The format follows
 ### Changed
 - [#39] **Breaking change:** `useCompression` and `useLocalInfile` now reject every value outside
   `1`/`true`/`on`/`yes` and `0`/`false`/`off`/`no`/empty with a `RuntimeException`, so a DSN that
-  used to work in 0.2.0 can now refuse to start. Surrounding whitespace is tolerated: the value is
-  trimmed before it is compared, so `+1`, `%201`, `1%20` and `1%0D` keep working, because
-  `parse_str` decodes `%20`, `%09` and `%0D` and turns `+` into a space. A value of nothing but
-  whitespace is an empty value, that is off — it enabled the flag in 0.2.0. The full table was
-  measured against `boolval()` and the strict parser:
+  used to work in 0.2.0 can now refuse to connect. Surrounding whitespace is tolerated: the value
+  is trimmed before it is compared, so `+1`, `%201`, `1%20` and `1%0D` keep working, because
+  `parse_str` decodes `%20`, `%09` and `%0D` and turns `+` into a space. The characters `trim()`
+  strips are exactly `" \t\n\r\0\x0B"`; a form feed (`%0C`) and a no-break space (`%C2%A0`) are not
+  among them and are still rejected. A value of nothing but those characters is an empty value,
+  that is off — it enabled the flag in 0.2.0. The full table was measured against `boolval()` and
+  the strict parser:
 
   | `useCompression=` in the url | 0.2.0 (`boolval()`) | now |
   |---|---|---|
   | `1`, `true`, `TRUE`, `on`, `ON`, `yes` | on | on |
-  | `0`, `false`, `off`, `no` | **on** (the bug [#30]) | off |
+  | `0` | off | off |
+  | `false`, `off`, `no` | **on** (the bug [#30]) | off |
   | empty value, or no option at all | off | off |
-  | `+1`, `%201`, `1%20`, `1%0D` (surrounding whitespace) | **on** | on, the value is trimmed first |
-  | `+%20`, `%09no`, `%0D` (whitespace around a disable value, or around nothing) | **on** | off, the trimmed value is `no` or empty |
+  | `+1`, `%201`, `1%20`, `1%0D` (whitespace around an enable value) | **on** | on, the value is trimmed |
+  | `%09no`, `+%20`, `%0D` (whitespace around a disable value, or around nothing) | **on** | off, the trimmed value is `no` or empty |
   | `y`, `t`, `n`, `f` | **on** | **throws** `RuntimeException` |
   | `enabled`, `2`, `-1`, `1.0`, `01`, `maybe` | **on** | **throws** `RuntimeException` |
   | `useCompression[]=1` (`parse_str` makes an array) | **on** | **throws** `RuntimeException` |
