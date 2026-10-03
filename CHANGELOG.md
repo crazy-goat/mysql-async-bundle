@@ -41,8 +41,19 @@ All notable changes to this project are documented here. The format follows
 - [#9] `composer.json` declared `"php": ">=8.1"` while CI only tested PHP 8.3 and 8.4, so the
   floor was never verified. The floor is now `>=8.3` (PHPUnit 12 needs it, and the tested
   matrix starts there) and PHPStan follows with `phpVersion: 80300`.
+- [#7] `PoolFactory::create()` reported `Invalid charset value` for an invalid `collate` and for an
+  invalid `key` as well, so the message named the wrong option. Each option now names itself:
+  `Invalid collate value`, `Invalid key value`.
+- [#7] `Pool` validated `maxConnections` and `idleTimeout` only in `getPool()`, that is on the
+  first `executeQuery()`. A bad configuration therefore passed container build and failed at
+  runtime. Both are validated in the constructor now, and the existing tests expect the exception
+  when the pool is created.
+- [#7] `Result` typed the awaited value as `Amp\Mysql\Internal\MysqlPooledResult`, an amphp class
+  marked `@internal` that may change in any release. `src/` no longer references any
+  `Amp\...\Internal\...` class; `Result` uses the public `MysqlResult` interface.
 
 ### Changed
+- [#7] The local variable `$poll` in `Pool::executeQuery()` is renamed to `$pool`.
 - [#10] `bin/lint.sh` no longer exports the deprecated `PHP_CS_FIXER_IGNORE_ENV`. The flag is now
   set the documented way, with `->setUnsupportedPhpVersionAllowed(true)` in
   `.php-cs-fixer.dist.php`.

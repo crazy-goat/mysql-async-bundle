@@ -30,7 +30,7 @@ class PoolFactory
         }
 
         if (!is_string($collate)) {
-            throw new \RuntimeException('Invalid charset value');
+            throw new \RuntimeException('Invalid collate value');
         }
 
         if (!is_string($sqlMode) && !is_null($sqlMode)) {
@@ -38,8 +38,9 @@ class PoolFactory
         }
 
         if (!is_string($key)) {
-            throw new \RuntimeException('Invalid charset value');
+            throw new \RuntimeException('Invalid key value');
         }
+
         $config = new MysqlConfig(
             host: $parsedUrl['host'] ?? '127.0.0.1',
             port: intval($parsedUrl['port'] ?? MysqlConfig::DEFAULT_PORT),
