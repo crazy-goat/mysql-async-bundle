@@ -18,6 +18,10 @@ All notable changes to this project are documented here. The format follows
   pool services, the `Pool` alias and invalid configuration. It needs no database.
 
 ### Fixed
+- [#22] `AGENTS.md` claimed that `bin/pick-issue.sh` is skipped by `shellcheck` and that it is a
+  byte-identical copy of the shared script. `bin/lint.sh` checks every tracked shell script, and
+  the copy in this repository is not identical to `.github/standard/pick-issue.sh`. The sentence
+  now says what is true.
 - [#5] `example/compose.yaml` defined a PostgreSQL service, while the sample application uses
   MySQL through both Doctrine and this bundle. It now defines MySQL, with a healthcheck and a
   published `${MYSQL_PORT:-3306}` port so the application can reach it from the host.

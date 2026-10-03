@@ -32,8 +32,9 @@ composer test            # PHPUnit
 
 `bin/lint.sh` runs php-cs-fixer (dry run), Rector (dry run), PHPStan (level max) and
 `shellcheck` (plus `hadolint` when the repository has Dockerfiles). It runs every step and fails
-if any step failed. `shellcheck` and `hadolint` must be installed. `bin/pick-issue.sh` is a
-byte-identical copy of the shared script and is skipped by `shellcheck`.
+if any step failed. `shellcheck` and `hadolint` must be installed. `bin/pick-issue.sh` is a copy
+of the shared script, so do not edit it here; sync it instead. `bin/lint.sh` runs `shellcheck`
+on every tracked shell script, that copy included.
 
 Run `composer lint-fix` and then `composer lint` before committing. Push only when
 `composer lint` and `composer test` pass.
