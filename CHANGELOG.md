@@ -5,10 +5,41 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- [#39] **Breaking change:** `useCompression` and `useLocalInfile` now reject every value outside
+  `1`/`true`/`on`/`yes` and `0`/`false`/`off`/`no`/empty with a `RuntimeException`, so a DSN that
+  used to work in 0.2.0 can now refuse to start. Surrounding whitespace is tolerated: the value is
+  trimmed before it is compared, so `+1`, `%201`, `1%20` and `1%0D` keep working, because
+  `parse_str` decodes `%20`, `%09` and `%0D` and turns `+` into a space. A value of nothing but
+  whitespace is an empty value, that is off — it enabled the flag in 0.2.0. The full table was
+  measured against `boolval()` and the strict parser:
+
+  | `useCompression=` in the url | 0.2.0 (`boolval()`) | now |
+  |---|---|---|
+  | `1`, `true`, `TRUE`, `on`, `ON`, `yes` | on | on |
+  | `0`, `false`, `off`, `no` | **on** (the bug [#30]) | off |
+  | empty value, or no option at all | off | off |
+  | `+1`, `%201`, `1%20`, `1%0D` (surrounding whitespace) | **on** | on, the value is trimmed first |
+  | `+%20`, `%09no`, `%0D` (whitespace around a disable value, or around nothing) | **on** | off, the trimmed value is `no` or empty |
+  | `y`, `t`, `n`, `f` | **on** | **throws** `RuntimeException` |
+  | `enabled`, `2`, `-1`, `1.0`, `01`, `maybe` | **on** | **throws** `RuntimeException` |
+  | `useCompression[]=1` (`parse_str` makes an array) | **on** | **throws** `RuntimeException` |
+
+  Upgrade action: search the configured urls for a boolean flag spelled as anything other than
+  `1`/`true`/`on`/`yes`/`0`/`false`/`off`/`no`. The `y`/`t`/`n`/`f` and `enabled`/`2`/`1.0` rows
+  above were never meant to enable a flag, so the throw is the fix for them, but the pool no
+  longer connects until the value is corrected. `charset`, `collate`, `sqlMode` and `key` are
+  unaffected.
+
 ### Fixed
 - [#30] `useCompression` and `useLocalInfile` were read with `boolval()`, so `=false` (or any
   non-empty string) enabled the flag. They now accept `1`/`true`/`on`/`yes` to enable,
-  `0`/`false`/`off`/`no`/empty to disable, and reject anything else.
+  `0`/`false`/`off`/`no`/empty to disable, and reject anything else. See [#39] for the
+  breaking-change table and for the surrounding whitespace the values tolerate.
+- [#39] A value with surrounding whitespace (`useCompression=+1`, `=1%20`, `=1%0D`) was rejected
+  as invalid after [#30] introduced the strict parsing, although it enabled the flag before. The
+  value is trimmed first, so a flag pasted from a url bar or copied out of a `.env` file keeps the
+  meaning it had.
 
 ## [0.2.0] - 2026-10-03
 

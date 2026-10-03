@@ -89,29 +89,78 @@ final class PoolFactoryTest extends TestCase
     }
 
     /**
-     * @param non-empty-string $query
+     * Pins the whole accepted set of both boolean flags. Every row also pins the flag that is
+     * not in the query string, so a value can never leak from one option into the other.
      */
-    #[DataProvider('invalidFlagProvider')]
-    public function testRejectsInvalidFlag(string $query): void
+    #[DataProvider('booleanFlagProvider')]
+    public function testParsesBooleanFlags(string $url, bool $useCompression, bool $useLocalInfile): void
     {
-        $name = str_starts_with($query, 'useCompression') ? 'useCompression' : 'useLocalInfile';
+        $config = self::configOf(PoolFactory::create($url));
 
+        self::assertSame($useCompression, $config->isCompressionEnabled(), 'useCompression');
+        self::assertSame($useLocalInfile, $config->isLocalInfileEnabled(), 'useLocalInfile');
+    }
+
+    /**
+     * @return iterable<string, array{string, bool, bool}>
+     */
+    public static function booleanFlagProvider(): iterable
+    {
+        $base = 'mysql://db.example/app';
+
+        yield 'no options at all' => [$base, false, false];
+        yield '1' => [$base . '?useCompression=1&useLocalInfile=1', true, true];
+        yield 'true' => [$base . '?useCompression=true&useLocalInfile=true', true, true];
+        yield 'on' => [$base . '?useCompression=on&useLocalInfile=on', true, true];
+        yield 'yes' => [$base . '?useCompression=yes&useLocalInfile=yes', true, true];
+        yield 'upper case' => [$base . '?useCompression=TRUE&useLocalInfile=ON', true, true];
+        yield '0' => [$base . '?useCompression=0&useLocalInfile=0', false, false];
+        yield 'false' => [$base . '?useCompression=false&useLocalInfile=false', false, false];
+        yield 'off' => [$base . '?useCompression=off&useLocalInfile=off', false, false];
+        yield 'no' => [$base . '?useCompression=no&useLocalInfile=no', false, false];
+        yield 'empty' => [$base . '?useCompression=&useLocalInfile=', false, false];
+
+        // `parse_str` decodes `%20`, `%09` and `%0D`, and turns `+` into a space, so a value
+        // pasted from a url bar or copied out of a `.env` line arrives with surrounding
+        // whitespace. A raw control character never gets that far: `parse_url` rewrites it to
+        // an underscore, which is why the carriage return rows are percent-encoded.
+        yield 'a leading space' => [$base . '?useCompression=%201', true, false];
+        yield 'a trailing space' => [$base . '?useCompression=1%20', true, false];
+        yield 'a plus sign, which parse_str reads as a space' => [$base . '?useCompression=+1', true, false];
+        yield 'a trailing tab' => [$base . '?useLocalInfile=1%09', false, true];
+        yield 'a trailing carriage return' => [$base . '?useCompression=1%0D', true, false];
+        yield 'a carriage return on its own, an empty value' => [$base . '?useCompression=%0D', false, false];
+        yield 'whitespace around a value' => [$base . '?useCompression=+yes%20&useLocalInfile=%09no', true, false];
+    }
+
+    #[DataProvider('invalidBooleanFlagProvider')]
+    public function testRejectsInvalidBooleanFlag(string $query, string $expectedMessage): void
+    {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage("Invalid $name value");
+        $this->expectExceptionMessage($expectedMessage);
 
         PoolFactory::create('mysql://user:secret@db.example/app?' . $query);
     }
 
     /**
-     * @return iterable<string, array{non-empty-string}>
+     * Pins the rejected set of both boolean flags. `boolval()` used to enable the flag for every
+     * one of these spellings.
+     *
+     * @return iterable<string, array{non-empty-string, non-empty-string}>
      */
-    public static function invalidFlagProvider(): iterable
+    public static function invalidBooleanFlagProvider(): iterable
     {
         // parse_str turns `name[]=x` into an array, so the option is not a string.
-        yield 'useCompression as array' => ['useCompression[]=1'];
-        yield 'useLocalInfile as array' => ['useLocalInfile[]=1'];
-        yield 'useCompression unknown value' => ['useCompression=2'];
-        yield 'useLocalInfile unknown value' => ['useLocalInfile=maybe'];
+        yield 'useCompression as an array' => ['useCompression[]=1', 'Invalid useCompression value'];
+        yield 'useLocalInfile as an array' => ['useLocalInfile[]=1', 'Invalid useLocalInfile value'];
+        yield 'y' => ['useCompression=y', 'Invalid useCompression value'];
+        yield 't' => ['useLocalInfile=t', 'Invalid useLocalInfile value'];
+        yield 'enabled' => ['useCompression=enabled', 'Invalid useCompression value'];
+        yield '2' => ['useCompression=2', 'Invalid useCompression value'];
+        yield '-1' => ['useLocalInfile=-1', 'Invalid useLocalInfile value'];
+        yield '1.0' => ['useCompression=1.0', 'Invalid useCompression value'];
+        yield 'surrounded by spaces but not a boolean' => ['useCompression=%20maybe%20', 'Invalid useCompression value'];
+        yield 'maybe' => ['useLocalInfile=maybe', 'Invalid useLocalInfile value'];
     }
 
     /**

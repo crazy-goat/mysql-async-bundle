@@ -65,9 +65,13 @@ class PoolFactory
     /**
      * Reads a boolean flag from the query options. Unlike `boolval()`, the string "false" is
      * false. True: `1`, `true`, `on`, `yes`; false: `0`, `false`, `off`, `no`, empty string.
-     * Anything else is rejected, like the other options. Note amphp's own connection string
-     * parser enables the flag only for the literal value `on`; this bundle also accepts the
-     * common `1`/`true` spellings, which amphp would treat as off.
+     * Anything else is rejected, like the other options. Surrounding whitespace is trimmed
+     * first, so a value that arrives with it keeps working: `parse_str` decodes `%20`, `%09`
+     * and `%0D`, and turns `+` into a space, so a flag copied out of a url bar or out of an
+     * `.env` file keeps its padding. A value of nothing but whitespace is an empty value, that
+     * is false. Note amphp's own connection string parser enables the flag only for the literal
+     * value `on`; this bundle also accepts the common `1`/`true` spellings, which amphp would
+     * treat as off.
      */
     private static function parseBoolOption(string $name, mixed $value): bool
     {
@@ -79,7 +83,7 @@ class PoolFactory
             throw new \RuntimeException("Invalid $name value");
         }
 
-        return match (strtolower($value)) {
+        return match (strtolower(trim($value))) {
             '1', 'true', 'on', 'yes' => true,
             '0', 'false', 'off', 'no', '' => false,
             default => throw new \RuntimeException("Invalid $name value"),
