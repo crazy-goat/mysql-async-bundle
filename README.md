@@ -39,6 +39,11 @@ The url is parsed by `amphp/mysql`. These query parameters are understood: `char
 `sqlMode`, `key`, `useCompression` and `useLocalInfile`. The configuration is validated when the
 container is compiled, so a typo fails at boot rather than at the first query.
 
+For the two boolean flags the accepted values are: `1`, `true`, `on` and `yes` enable the flag;
+`0`, `false`, `off`, `no` and the empty string disable it; anything else is rejected. Unlike
+`amphp/mysql`'s own connection string parser, which enables the flag only for the literal `on`,
+this bundle also accepts `1`/`true` to enable it.
+
 The pool is registered under `CrazyGoat\MysqlAsyncBundle\Connection\Pool` and can be autowired:
 
 ```php
