@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- [#5] A README with installation, configuration and usage, and the steps that start the example
+  application and open a page that runs queries through the bundle.
 - [#18] CI job `example app`: installs `example/` and boots its kernel with `php bin/console about`. It runs for code changes (including Dependabot PRs for `/example`) and is part of `ci-ok`.
 - [#9] `require` declares the Symfony components the bundle actually uses (`symfony/config`,
   `symfony/dependency-injection`, `symfony/http-kernel`) as `^6.4 || ^7.4 || ^8.1`. The
@@ -16,6 +18,15 @@ All notable changes to this project are documented here. The format follows
   pool services, the `Pool` alias and invalid configuration. It needs no database.
 
 ### Fixed
+- [#5] `example/compose.yaml` defined a PostgreSQL service, while the sample application uses
+  MySQL through both Doctrine and this bundle. It now defines MySQL, with a healthcheck and a
+  published `${MYSQL_PORT:-3306}` port so the application can reach it from the host.
+- [#5] The example pointed at a hard-coded Docker bridge IP (`172.17.0.2`) in `example/.env` and
+  in `example/config/services.yaml`, so it could never connect. The connection details are now
+  `MYSQL_*` variables, `DATABASE_URL` is derived from them, and the bundle reads `%env(MYSQL_URL)%`.
+- [#5] Removed the `Amp\Mysql\MysqlConfig` service from `example/config/services.yaml`. Nothing
+  injected it: the bundle builds its own `MysqlConfig` in `PoolFactory`, and the class is `final`
+  with a required `$host` argument, so the definition only carried the wrong host.
 - [#9] The bundle registered its own `MysqlAsyncExtension` under the `mysql_async` alias in
   `build()`, overwriting the `BundleExtension` that `AbstractBundle` provides. As a result
   `configure()` and `src/config/configuration.php` were never used and the configuration was
