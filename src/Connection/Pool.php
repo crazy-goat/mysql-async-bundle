@@ -15,11 +15,22 @@ class Pool
 {
     private ?MysqlConnectionPool $pool = null;
 
+    /** @var positive-int */
+    private readonly int $maxConnections;
+
+    /** @var positive-int */
+    private readonly int $idleTimeout;
+
     public function __construct(
         private readonly MysqlConfig $config,
-        private readonly int         $maxConnections = SqlCommonConnectionPool::DEFAULT_MAX_CONNECTIONS,
-        private readonly int         $idleTimeout = SqlCommonConnectionPool::DEFAULT_IDLE_TIMEOUT,
+        int                         $maxConnections = SqlCommonConnectionPool::DEFAULT_MAX_CONNECTIONS,
+        int                         $idleTimeout = SqlCommonConnectionPool::DEFAULT_IDLE_TIMEOUT,
     ) {
+        // Validated here and not on the first query, so that a bad configuration fails when
+        // the service is created instead of at runtime. `requirePositiveInt()` is what lets
+        // PHPStan know the two properties stay positive.
+        $this->maxConnections = $this->requirePositiveInt($maxConnections, 'Maximum number of connections must be greater than 0');
+        $this->idleTimeout = $this->requirePositiveInt($idleTimeout, 'Idle timeout must be greater than 0');
     }
 
     /**
@@ -27,9 +38,9 @@ class Pool
      */
     public function executeQuery(string $query, array $params = []): Result
     {
-        $poll = $this->getPool();
+        $pool = $this->getPool();
 
-        return new Result(async(fn(): MysqlResult => $poll->execute($query, $params)));
+        return new Result(async(fn(): MysqlResult => $pool->execute($query, $params)));
     }
 
     private function getPool(): MysqlConnectionPool
@@ -38,16 +49,20 @@ class Pool
             return $this->pool;
         }
 
-        if ($this->maxConnections <= 0) {
-            throw new \InvalidArgumentException('Maximum number of connections must be greater than 0');
-        }
-
-        if ($this->idleTimeout <= 0) {
-            throw new \InvalidArgumentException('Idle timeout must be greater than 0');
-        }
-
         $this->pool = new MysqlConnectionPool($this->config, $this->maxConnections, $this->idleTimeout);
 
         return $this->pool;
+    }
+
+    /**
+     * @return positive-int
+     */
+    private function requirePositiveInt(int $value, string $message): int
+    {
+        if ($value <= 0) {
+            throw new \InvalidArgumentException($message);
+        }
+
+        return $value;
     }
 }

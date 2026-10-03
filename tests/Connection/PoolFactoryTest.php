@@ -6,6 +6,7 @@ namespace CrazyGoat\MysqlAsyncBundle\Tests\Connection;
 
 use CrazyGoat\MysqlAsyncBundle\Connection\Pool;
 use CrazyGoat\MysqlAsyncBundle\Connection\PoolFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PoolFactoryTest extends TestCase
@@ -17,30 +18,43 @@ final class PoolFactoryTest extends TestCase
         $this->assertInstanceOf(Pool::class, $pool);
     }
 
-    public function testRejectsNonStringCharset(): void
+    /**
+     * @param non-empty-string $query
+     */
+    #[DataProvider('invalidOptionProvider')]
+    public function testRejectsInvalidOption(string $query, string $expectedMessage): void
     {
         $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage($expectedMessage);
 
-        PoolFactory::create('mysql://user:secret@db.example/app?charset[]=utf8');
+        PoolFactory::create('mysql://user:secret@db.example/app?' . $query);
     }
 
-    public function testRejectsInvalidMaxConnectionsOnFirstQuery(): void
+    /**
+     * @return iterable<string, array{non-empty-string, non-empty-string}>
+     */
+    public static function invalidOptionProvider(): iterable
     {
-        $pool = PoolFactory::create('mysql://user:secret@db.example/app', 0);
+        // parse_str turns `name[]=x` into an array, so the option is not a string.
+        yield 'charset' => ['charset[]=utf8', 'Invalid charset value'];
+        yield 'collate' => ['collate[]=utf8mb4_general_ci', 'Invalid collate value'];
+        yield 'sqlMode' => ['sqlMode[]=STRICT_ALL_TABLES', 'Invalid SQL mode'];
+        yield 'key' => ['key[]=secret', 'Invalid key value'];
+    }
 
+    public function testRejectsInvalidMaxConnections(): void
+    {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Maximum number of connections must be greater than 0');
 
-        $pool->executeQuery('SELECT 1');
+        PoolFactory::create('mysql://user:secret@db.example/app', 0);
     }
 
-    public function testRejectsInvalidIdleTimeoutOnFirstQuery(): void
+    public function testRejectsInvalidIdleTimeout(): void
     {
-        $pool = PoolFactory::create('mysql://user:secret@db.example/app', 1, 0);
-
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Idle timeout must be greater than 0');
 
-        $pool->executeQuery('SELECT 1');
+        PoolFactory::create('mysql://user:secret@db.example/app', 1, 0);
     }
 }
