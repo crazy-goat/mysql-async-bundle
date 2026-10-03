@@ -7,6 +7,40 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 - [#18] CI job `example app`: installs `example/` and boots its kernel with `php bin/console about`. It runs for code changes (including Dependabot PRs for `/example`) and is part of `ci-ok`.
+- [#9] `require` declares the Symfony components the bundle actually uses (`symfony/config`,
+  `symfony/dependency-injection`, `symfony/http-kernel`) as `^6.4 || ^7.4 || ^8.1`. The
+  supported Symfony range was not declared anywhere before. `symfony/framework-bundle` in
+  `require-dev` uses the same range.
+- [#9] `tests/MysqlAsyncBundleTest.php` boots the bundle in a minimal kernel
+  (`tests/TestKernel.php`, `framework.test: true`), compiles the container and checks the
+  pool services, the `Pool` alias and invalid configuration. It needs no database.
+
+### Fixed
+- [#9] The bundle registered its own `MysqlAsyncExtension` under the `mysql_async` alias in
+  `build()`, overwriting the `BundleExtension` that `AbstractBundle` provides. As a result
+  `configure()` and `src/config/configuration.php` were never used and the configuration was
+  never validated: an unknown option, an empty url or an unknown pool name were all accepted
+  silently. Without any `mysql_async` configuration `load()` returned early, so no pool
+  service and no `Pool` alias were registered at all and autowiring failed with a bare
+  `ServiceNotFoundException`. `MysqlAsyncBundle::loadExtension()` now registers the pools and
+  the config tree validates the input.
+- [#9] Each pool service was registered with class `PoolFactory` while `PoolFactory::create()`
+  returns a `Pool`. Nothing noticed, because `CheckTypeDeclarationsPass` skips definitions
+  that have a factory; `debug:container` reported the wrong class.
+- [#9] `composer.json` declared `"php": ">=8.1"` while CI only tested PHP 8.3 and 8.4, so the
+  floor was never verified. The floor is now `>=8.3` (PHPUnit 12 needs it, and the tested
+  matrix starts there) and PHPStan follows with `phpVersion: 80300`.
+
+### Changed
+- [#9] The CI test matrix covers the maintained Symfony lines (6.4 LTS, 7.4 LTS and 8.1)
+  instead of the end-of-life 7.0, 7.1 and 7.2. Symfony 8.1 needs PHP 8.4.1 or newer, so PHP 8.3 is
+  excluded from that one cell.
+- [#9] `tests/` has an `autoload-dev` PSR-4 mapping, so a test class can use another test
+  class without PHPUnit having to include the file first.
+
+### Removed
+- [#9] `CrazyGoat\MysqlAsyncBundle\MysqlAsyncExtension`. With `AbstractBundle` the bundle
+  itself is the extension; the class was only referenced by the redundant registration above.
 
 ### Security
 - [#6] The sample application in `example/` moves from Symfony 7.2 (end of life) to Symfony 7.4 LTS, and
