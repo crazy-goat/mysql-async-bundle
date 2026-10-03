@@ -5,6 +5,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-03
+
 ### Added
 - [#8] `tests/Integration/PoolIntegrationTest.php` runs `executeQuery()` and `fetchScalar()`
   against a real MySQL, covering a scalar result, a string result, an empty result and a query
