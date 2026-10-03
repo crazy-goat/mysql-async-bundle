@@ -64,9 +64,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # PHPUnit 12 (require-dev) needs PHP 8.3 or newer.
+        # PHPUnit 12 (require-dev) needs PHP 8.3 or newer, which is also the floor in composer.json.
         php-version: ['8.3', '8.4']
-        symfony-version: ['6.4.*', '7.0.*', '7.1.*', '7.2.*']
+        # Only maintained lines: 6.4 LTS, 7.4 LTS and the current 8.x.
+        symfony-version: ['6.4.*', '7.4.*', '8.1.*']
+        exclude:
+          # Symfony 8.1 needs PHP 8.4.1 or newer.
+          - php-version: '8.3'
+            symfony-version: '8.1.*'
 
     steps:
       - name: Checkout

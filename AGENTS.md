@@ -14,6 +14,7 @@ Everything is written in English (code, comments, docs, commits, issues).
 | `src/` | Bundle, namespace `CrazyGoat\MysqlAsyncBundle\` |
 | `src/Connection/` | `Pool`, `PoolFactory`, `Result` |
 | `tests/` | PHPUnit tests, they need no database |
+| `tests/TestKernel.php` | Minimal kernel the functional tests boot (`framework.test: true`) |
 | `example/` | Sample Symfony application (own `composer.json`, `compose.yaml`) |
 | `bin/` | Lint script, worktree scripts and `pick-issue.sh` |
 
@@ -49,7 +50,9 @@ the sample application and publishes no host ports. If you add published ports, 
 ## CI
 
 `.github/workflows/tests.yaml` runs `changes` and `docs` always. `lint` and `tests`
-(PHP 8.3 and 8.4 against Symfony 6.4 to 7.2) run for code changes. The `example` job
+(PHP 8.3 and 8.4 against the maintained Symfony lines: 6.4 LTS, 7.4 LTS and 8.1) run for
+code changes. The matrix rewrites every `symfony/*` constraint in `composer.json` with `sed`,
+so `require`, `require-dev` and the matrix must stay in sync. The `example` job
 installs `example/` (`composer install`) and boots its kernel (`php bin/console about`), so
 Dependabot PRs for `/example` are checked too. `ci-ok` aggregates them and is
 the only required check. The CI `lint` job only runs `bin/lint.sh`.
