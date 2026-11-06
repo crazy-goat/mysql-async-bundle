@@ -18,7 +18,7 @@
         "crazy-goat/mysql-async-bundle": "@dev"
     },
     "require-dev": {
-        "symfony/stopwatch": "7.4.*",
+        "symfony/stopwatch": "8.1.*",
         "symfony/web-profiler-bundle": "7.4.*"
     },
     "repositories": [
