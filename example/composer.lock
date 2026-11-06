@@ -925,18 +925,21 @@
             "dist": {
                 "type": "path",
                 "url": "..",
-                "reference": "04961199064efbc09e552559c898e864a288dea7"
+                "reference": "3551acadd9f0825886e167dcccd5385ecb9c68aa"
             },
             "require": {
                 "amphp/mysql": "^3.0",
-                "php": ">=8.1"
+                "php": ">=8.3",
+                "symfony/config": "^6.4 || ^7.4 || ^8.1",
+                "symfony/dependency-injection": "^6.4 || ^7.4 || ^8.1",
+                "symfony/http-kernel": "^6.4 || ^7.4 || ^8.1"
             },
             "require-dev": {
                 "php-cs-fixer/shim": "^3.75",
                 "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^12.1",
                 "rector/rector": "^2.0",
-                "symfony/framework-bundle": "^7.2"
+                "symfony/framework-bundle": "^6.4 || ^7.4 || ^8.1"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -944,9 +947,17 @@
                     "CrazyGoat\\MysqlAsyncBundle\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "CrazyGoat\\MysqlAsyncBundle\\Tests\\": "tests/"
+                }
+            },
             "scripts": {
                 "test": [
                     "vendor/bin/phpunit"
+                ],
+                "test-integration": [
+                    "vendor/bin/phpunit --testsuite integration"
                 ],
                 "lint": [
                     "bin/lint.sh"
@@ -3253,16 +3264,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v2.11.0",
+            "version": "v2.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "4a6d98eea3ebc7f68d82810cb682eedca2649e99"
+                "reference": "3d37e8597c2290c095433b4260563986f857a274"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/4a6d98eea3ebc7f68d82810cb682eedca2649e99",
-                "reference": "4a6d98eea3ebc7f68d82810cb682eedca2649e99",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/3d37e8597c2290c095433b4260563986f857a274",
+                "reference": "3d37e8597c2290c095433b4260563986f857a274",
                 "shasum": ""
             },
             "require": {
@@ -3302,7 +3313,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v2.11.0"
+                "source": "https://github.com/symfony/flex/tree/v2.12.0"
             },
             "funding": [
                 {
@@ -3322,7 +3333,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-29T17:25:22+00:00"
+            "time": "2026-10-29T17:24:46+00:00"
         },
         {
             "name": "symfony/framework-bundle",
